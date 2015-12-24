@@ -1,66 +1,66 @@
-int calibrationTime = 30;
-long unsigned int lowIn;
+/* AUTOMATIODUINO 0.1
+ *  FOR 1 LIGHT (Pin 13)
+ *  
+ *  Functions include: 
+ *    1. Motion sensor (pin 2)
+*/
 
-long unsigned int pause = 5000;
+// defining pins
+const unsigned int pirPin = 2; // Light sensor
+const unsigned int lightPin = 13; // Output for light
 
-boolean lockLow = true;
-boolean takeLowTime;
+bool sensorDetect;
 
-int pirPin = 4;  // Pin of IR Motion Sensor
-int relayPin = 8;  // Pin of Relay Module
-
+// VARIABLES FOR MOTION SENSOR
+int offTimer = 60; // time in secs before sensor would have to be retriggered
+int countdown = offTimer; // for countdown of timer
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(relayPin, OUTPUT);  // Set Pin connected to Relay as an OUTPUT
   pinMode(pirPin, INPUT);
-  digitalWrite(pirPin, LOW);
-  digitalWrite(relayPin, LOW);  // Set Pin to LOW to turn Relay OFF
+  pinMode(lightPin, OUTPUT);
 
+  digitalWrite(lightPin, LOW);
 
-  //give the sensor some time to calibrate
-  Serial.print("calibrating sensor ");
-  for (int i = 0; i < calibrationTime; i++) {
-    Serial.print(".");
+  Serial.begin(9600);
+}
+
+void loop() {
+  checkMovement();
+}
+
+// --------------------------- //
+// FUNCTIONS FOR MOTION SENSOR //
+// --------------------------- //
+
+// MOTION SENSOR FUNCTIONS: 
+// 1. lightOn()     : countdown until light turns off
+// 2. lightOff()    : to turn off the light
+// 3. checkMovement : to check for movement
+
+void lightOn() {
+  for (countdown = offTimer; countdown > 0; countdown--) {
+    digitalWrite(lightPin, HIGH);
+    checkMovement();
+
+    Serial.println(countdown);
     delay(1000);
   }
-  Serial.println(" done");
-  Serial.println("SENSOR ACTIVE");
-  delay(50);
-}
-void loop() {
 
+  Serial.println("Go to lightOff()");
+  lightOff();
+}
+
+void lightOff() {
+  digitalWrite(lightPin, LOW);
+
+  checkMovement();
+}
+
+void checkMovement() {
   if (digitalRead(pirPin) == HIGH) {
-    digitalWrite(relayPin, HIGH);
-    if (lockLow) {
-      //makes sure we wait for a transition to LOW before any further output is made:
-      lockLow = false;
-      Serial.println("---");
-      Serial.print("motion detected at ");
-      Serial.print(millis() / 1000);
-      Serial.println(" sec");
-      delay(50);
-    }
-    takeLowTime = true;
-  }
+    Serial.println("go to lightOn()");
 
-  if (digitalRead(pirPin) == LOW) {
-    digitalWrite(relayPin, LOW);  //the led visualizes the sensors output pin state
-
-    if (takeLowTime) {
-      lowIn = millis();          //save the time of the transition from high to LOW
-      takeLowTime = false;       //make sure this is only done at the start of a LOW phase
-    }
-    //if the sensor is low for more than the given pause,
-    //we assume that no more motion is going to happen
-    if (!lockLow && millis() - lowIn > pause) {
-      //makes sure this block of code is only executed again after
-      //a new motion sequence has been detected
-      lockLow = true;
-      Serial.print("motion ended at ");      //output
-      Serial.print((millis() - pause) / 1000);
-      Serial.println(" sec");
-      delay(50);
-    }
+    lightOn();
   }
 }
+
