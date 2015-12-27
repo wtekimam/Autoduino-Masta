@@ -9,13 +9,17 @@
 // 3. checkMovement : to check for movement
 
 void lightOn() {
-  if (motionOn) {
-    for (countdown = offTimer; countdown > 0; countdown--) {
+  if (motionOn && allSensorOn) {
+    countdown = offTimer;
+    while (countdown > 0) {
       digitalWrite(lightPin, HIGH);
       checkMovement();
 
       Serial.println(countdown);
+      readKeyInput();
       delay(1000);
+      if (countdown > 0)
+        countdown--;
     }
 
     Serial.println("Go to lightOff()");
@@ -25,16 +29,15 @@ void lightOn() {
 
 void lightOff() {
   digitalWrite(lightPin, LOW);
-  
+  readKeyInput();
   checkLightMeter();
-  checkMovement();
 }
 
 void checkMovement() {
-  
-    if (digitalRead(pirPin) == HIGH && motionOn) {
-      Serial.println("go to lightOn()");
 
-      lightOn();
-    }
+  if (digitalRead(pirPin) == HIGH && motionOn && allSensorOn) {
+    Serial.println("go to lightOn()");
+
+    lightOn();
+  }
 }

@@ -6,15 +6,19 @@
 // LIGHT SENSOR FUNCTIONS:
 // 1. checkLightMeter : check light meter every 1 second and turn on motion if dark enough
 
-void checkLightMeter(){
-  lux = lightMeter.readLightLevel();
-  
-    if (lux < 15) {
-    motionOn = true;
-    checkMovement();
-  }
-  else
-    motionOn = false;
+void checkLightMeter() {
+  if (allSensorOn) {
+    lux = lightMeter.readLightLevel();
 
-  delay(1000);
+    if (lux < 15) {
+      motionOn = true;
+      checkMovement();
+    }
+    else {
+      motionOn = false;
+      Serial.println(lux);
+    }
+    delay(50);
+  }
 }
+
