@@ -27,13 +27,13 @@
 /////////////////////////////////////////////////
 
 int pinLed = 13;  //pin location for the LED
-int sensPin = 8;  //pin location for the sensor module
+int sensPin = 2;  //pin location for the sensor module
 
 int input;  //what is read from the sensor module
 
 //Threshold Vars
-bool inputThreshold[5];  //change the # in the [] to increase/decrease the amount of reads taken per decision
-int thresholdLimit = 3;  //the number of TRUE vars required before the light goes on
+bool inputThreshold[10];  //change the # in the [] to increase/decrease the amount of reads taken per decision
+int thresholdLimit = 5;  //the number of TRUE vars required before the light goes on
 int indexCount;  //total number of # within the threshold
 int index;  //the threshold bool that is currently being read
 
@@ -63,10 +63,10 @@ void setup() {
 /////////////////////////////////////////////////
 
 void loop() {
-  inputFunction();
+  //inputFunction();
   //This simulates the motionInput function when there is no motion sensor connected
 
-  //motionInput(); //if inputFunction() is not commented out then this needs to be commented out
+  motionInput(); //if inputFunction() is not commented out then this needs to be commented out
   Serial.print(index);
   Serial.print(" | ");
   Serial.print(input);
@@ -90,7 +90,7 @@ void loop() {
 
 void motionInput() {
   //Takes the input from the motion sensor and puts it into the input variable
-  if (sensPin == HIGH) {
+  if (digitalRead(sensPin) == HIGH) {
     input = 1;
   }
   else {
@@ -154,9 +154,6 @@ void timer() {
   if (timerOn) {
     digitalWrite(pinLed, HIGH);
     timerTime--;
-    Serial.print(" ");
-    Serial.print(timerTime);
-    Serial.print(" ");
     if (timerTime <= 0) {
       timerOn = false;
       timerTime = timerReset;
