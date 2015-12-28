@@ -32,6 +32,9 @@ int masterPin = 8; //pin location for the master button
 
 int input;  //what is read from the sensor module
 
+//Calabration Vars
+int calibrationTime = 10;
+
 //Threshold Vars
 bool inputThreshold[100];  //change the # in the [] to increase/decrease the amount of reads taken per decision
 int thresholdLimit = 20;  //the number of TRUE vars required before the light goes on
@@ -46,6 +49,8 @@ bool timerOn = false;  //determines whether or not the timer should start
 //Master Switch Vars
 bool masterSwitch = false;
 
+
+
 /////////////////////////////////////////////////
 // SETUP
 /////////////////////////////////////////////////
@@ -58,6 +63,16 @@ void setup() {
 
   indexCount = sizeof(inputThreshold) / sizeof(inputThreshold[0]);  //determines how many index boxs there are in total
   inputThreshold[indexCount] = {0};
+
+  Serial.println("Sensor is Calibrating");
+  for(int i = 0; i < calibrationTime; i++){   
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println();
+  Serial.println("Sensor is Armed");
+  delay(1000);
+  Serial.println();
 }
 
 /////////////////////////////////////////////////
@@ -100,7 +115,6 @@ void loop() {
 /////////////////////////////////////////////////
 // FUNCTIONS
 /////////////////////////////////////////////////
-
 void indexPrint() {
   //simply trying to straighten up the index line when the index is greater than 10
   if (index < 10) {
