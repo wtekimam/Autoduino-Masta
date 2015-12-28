@@ -28,12 +28,13 @@
 
 int pinLed = 13;  //pin location for the LED
 int sensPin = 2;  //pin location for the sensor module
+int masterPin = 8; //pin location for the master button
 
 int input;  //what is read from the sensor module
 
 //Threshold Vars
-bool inputThreshold[10];  //change the # in the [] to increase/decrease the amount of reads taken per decision
-int thresholdLimit = 5;  //the number of TRUE vars required before the light goes on
+bool inputThreshold[100];  //change the # in the [] to increase/decrease the amount of reads taken per decision
+int thresholdLimit = 20;  //the number of TRUE vars required before the light goes on
 int indexCount;  //total number of # within the threshold
 int index;  //the threshold bool that is currently being read
 
@@ -42,7 +43,8 @@ int timerTime = 10;  //the amount of time on the countdown timer, in seconds
 int timerReset = timerTime;  //the ablility to reset the timer to the original time
 bool timerOn = false;  //determines whether or not the timer should start
 
-
+//Master Switch Vars
+bool masterSwitch = false;
 
 /////////////////////////////////////////////////
 // SETUP
@@ -63,30 +65,65 @@ void setup() {
 /////////////////////////////////////////////////
 
 void loop() {
+  evaluateMasterPress();
   //inputFunction();
   //This simulates the motionInput function when there is no motion sensor connected
 
   motionInput(); //if inputFunction() is not commented out then this needs to be commented out
-  Serial.print(index);
-  Serial.print(" | ");
-  Serial.print(input);
 
-  Serial.print(" | ");
-  threshold();
-  Serial.print(" | ");
 
-  evaluationOfThreshold();
+  if (masterSwitch) {
 
-  timer();
+    indexPrint();
+    Serial.print(" | ");
+    Serial.print(input);
+    Serial.print(" | ");
 
-  Serial.println();
-  delay(500);
+    threshold();
+
+    Serial.print(" | ");
+
+    evaluationOfThreshold();
+
+    timer();
+
+    Serial.println();
+  }
+  else {
+    Serial.println("Motion Sensor is Off");
+    delay(1000);
+  }
+  delay(50);
 
 }
 
 /////////////////////////////////////////////////
 // FUNCTIONS
 /////////////////////////////////////////////////
+
+void indexPrint() {
+  //simply trying to straighten up the index line when the index is greater than 10
+  if (index < 10) {
+    Serial.print(" ");
+    Serial.print(index);
+    //Serial.print(" ");
+  }
+  else {
+    Serial.print(index);
+  }
+}
+
+void evaluateMasterPress() {
+  if (digitalRead(masterPin) == LOW) {
+    masterSwitch = !masterSwitch;
+    Serial.print("Motion Sensor...");
+    delay(1000);
+    Serial.println();
+  }
+  if (masterSwitch == false) {
+    digitalWrite(pinLed, LOW);
+  }
+}
 
 void motionInput() {
   //Takes the input from the motion sensor and puts it into the input variable
