@@ -33,22 +33,21 @@ int masterPin = 8; //pin location for the master button
 int input;  //what is read from the sensor module
 
 //Calabration Vars
-int calibrationTime = 10;
+int calibrationTime = 30;
 
 //Threshold Vars
-bool inputThreshold[100];  //change the # in the [] to increase/decrease the amount of reads taken per decision
-int thresholdLimit = 20;  //the number of TRUE vars required before the light goes on
+bool inputThreshold[10];  //change the # in the [] to increase/decrease the amount of reads taken per decision
+int thresholdLimit = 4;  //the number of TRUE vars required before the light goes on
 int indexCount;  //total number of # within the threshold
 int index;  //the threshold bool that is currently being read
 
 //Timer Vars
-int timerTime = 10;  //the amount of time on the countdown timer, in seconds
+int timerTime = 60;  //the amount of time on the countdown timer, in seconds
 int timerReset = timerTime;  //the ablility to reset the timer to the original time
-bool timerOn = false;  //determines whether or not the timer should start
+bool timerOn = true;  //determines whether or not the timer should start
 
 //Master Switch Vars
 bool masterSwitch = false;
-
 
 
 /////////////////////////////////////////////////
@@ -64,15 +63,7 @@ void setup() {
   indexCount = sizeof(inputThreshold) / sizeof(inputThreshold[0]);  //determines how many index boxs there are in total
   inputThreshold[indexCount] = {0};
 
-  Serial.println("Sensor is Calibrating");
-  for(int i = 0; i < calibrationTime; i++){   
-    Serial.print(".");
-    delay(1000);
-  }
-  Serial.println();
-  Serial.println("Sensor is Armed");
-  delay(1000);
-  Serial.println();
+  calibration();
 }
 
 /////////////////////////////////////////////////
@@ -108,13 +99,23 @@ void loop() {
     Serial.println("Motion Sensor is Off");
     delay(1000);
   }
-  delay(50);
+  delay(250);
 
 }
 
 /////////////////////////////////////////////////
 // FUNCTIONS
 /////////////////////////////////////////////////
+void calibration() {
+  Serial.println();
+  Serial.println("Sensor is Calibrating");
+  for (int i = 0; i < calibrationTime; i++) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println();
+}
+
 void indexPrint() {
   //simply trying to straighten up the index line when the index is greater than 10
   if (index < 10) {
@@ -130,7 +131,14 @@ void indexPrint() {
 void evaluateMasterPress() {
   if (digitalRead(masterPin) == LOW) {
     masterSwitch = !masterSwitch;
-    Serial.print("Motion Sensor...");
+    Serial.print("Motion Sensor ");
+    if (masterSwitch) {
+      Serial.print("Armed");
+      calibration();
+    }
+    else {
+      Serial.print("Dearmed");
+    }
     delay(1000);
     Serial.println();
   }
